@@ -1,0 +1,3 @@
+function bulletPhysics() {
+    for each ()
+}

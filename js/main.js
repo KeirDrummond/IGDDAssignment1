@@ -1,5 +1,6 @@
 var keys;
 var player;
+var game;
 
 function main() {
     console.log("main()");
@@ -22,33 +23,46 @@ function main() {
         }
     };
 
-    phaser = new Phaser.Game(config);
+    game = new Phaser.Game(config);
 }
 
 function preload() {
-    this.load.image('player', 'assets/tiny_ship.png');
-    this.load.image('laser', 'assets/laser.png');
+    console.log("preload");
+    
+    game = this;
+    
+    this.load.image('player', 'assets/images/tiny_ship.png');
+    this.load.image('laser', 'assets/images/laser.png');
+    this.load.image('background', 'assets/images/background.png');
+    this.load.image('enemy', 'assets/images/enemy.png');
+    this.load.audio('music', 'assets/audio/music.mp3');
 }
 
 function create() {
+    console.log("create");
     
-    player = this.physics.add.sprite(200, 250, 'player');
-    player.setCollideWorldBounds(true);
+    let bg = this.add.sprite(0, 0, 'background');
+    bg.setDisplaySize(2000, 1600);
+    
+    player = new Player(this);
+    
+    /*player = this.physics.add.sprite(200, 250, 'player');
+    player.setScale(2, 2);
+    player.angle = 0;
+    player.setOrigin(0.5, 0.5);
+    
+    player.setCollideWorldBounds(true);*/
     
     var thing = this.physics.add.sprite(200, 300, 'laser');
 
-    this.physics.add.overlap(player, thing, meme, null, this);
+    //this.physics.add.overlap(player, thing, meme, null, this);
     
     keys = this.input.keyboard.createCursorKeys();
+    
+    //this.sound.play('music');
 }
 
 function update() {
-    if (keys.up.isDown) { player.y = player.y - 1; }
-    if (keys.down.isDown) { player.y = player.y + 1; }
-    if (keys.left.isDown) { player.x = player.x - 1; }
-    if (keys.right.isDown) { player.x = player.x + 1; }
-}
-
-function meme() {
-    console.log("Meme");
+    input(player);
+    Entity.update();
 }

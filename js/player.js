@@ -1,11 +1,7 @@
-var gameref;
-
 class Player extends Entity {
-    constructor(game) {
-        super(game);
-        
-        gameref = game;
-        
+    constructor() {
+        super();
+
         const playerSprite = game.physics.add.sprite(200, 250, 'player');
         playerSprite.setOrigin(0.5, 0.5);
         playerSprite.setCollideWorldBounds(true);
@@ -19,6 +15,8 @@ class Player extends Entity {
         this.deccelerationRate = 0.4;
         
         this.bulletSpeed = 6;
+        
+        console.log(game.world);
     }
 
     right() {
@@ -45,10 +43,10 @@ class Player extends Entity {
     
     fire() {
         if (this.facingRight) {
-            let laser = new Bullet(gameref, this.sprite.x, this.sprite.y, this.bulletSpeed);
+            world.spawnBullet(this.sprite.x, this.sprite.y, this.bulletSpeed);
         }
         else {
-            let laser = new Bullet(gameref, this.sprite.x, this.sprite.y, -this.bulletSpeed);
+            world.spawnBullet(this.sprite.x, this.sprite.y, -this.bulletSpeed);
         }
             
     }

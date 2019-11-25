@@ -1,6 +1,7 @@
 var keys;
 var player;
 var game;
+var world;
 
 function main() {
     console.log("main()");
@@ -41,21 +42,7 @@ function preload() {
 function create() {
     console.log("create");
     
-    let bg = this.add.sprite(0, 0, 'background');
-    bg.setDisplaySize(2000, 1600);
-    
-    player = new Player(this);
-    
-    /*player = this.physics.add.sprite(200, 250, 'player');
-    player.setScale(2, 2);
-    player.angle = 0;
-    player.setOrigin(0.5, 0.5);
-    
-    player.setCollideWorldBounds(true);*/
-    
-    var thing = this.physics.add.sprite(200, 300, 'laser');
-
-    //this.physics.add.overlap(player, thing, meme, null, this);
+    world = new World(game);
     
     keys = this.input.keyboard.createCursorKeys();
     
@@ -63,6 +50,6 @@ function create() {
 }
 
 function update() {
-    input(player);
-    Entity.update();
+    input(world.player);
+    world.update();
 }

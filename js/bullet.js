@@ -6,10 +6,16 @@ class Bullet extends Entity {
         
         this.sprite = bulletSprite;
         this.velx = velx;
+        
+        this.lifetime = 2;        
     }
     
     
     update() {
         this.sprite.x += velx;
+        
+        this.lifetime =- 0.1
+        if (this.lifetime <= 0)
+            { this.destroy(); }
     }
 }

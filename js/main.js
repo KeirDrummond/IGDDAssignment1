@@ -24,7 +24,7 @@ function main() {
         }
     };
 
-    game = new Phaser.Game(config);
+    game = new Phaser.Game(config);    
 }
 
 function preload() {

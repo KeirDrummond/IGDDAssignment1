@@ -1,21 +1,25 @@
-class Bullet extends Entity {
+class Bullet extends Phaser.Physics.Arcade.Sprite {
     
-    constructor(game, posx, posy, velx) {
-        super(game);
-        const bulletSprite = game.physics.add.sprite(posx, posy, 'laser');
+    constructor(posx, posy, facingRight) {
+        super(game, posx, posy, 'laser');
+
+        this.facingRight = facingRight;
         
-        this.sprite = bulletSprite;
-        this.velx = velx;
+        this.lifetime = 1;
+        this.velx = 0;
         
-        this.lifetime = 2;        
+        game.add.existing(this);
+        
+        if (facingRight == true)
+            this.velx = 10; else this.velx = -10;
     }
     
     
     update() {
-        this.sprite.x += velx;
+        this.x += this.velx;
         
-        this.lifetime =- 0.1
+        this.lifetime -= (1/60);
         if (this.lifetime <= 0)
-            { this.destroy(); }
+            { this.clearMask(); this.destroy(); }
     }
 }

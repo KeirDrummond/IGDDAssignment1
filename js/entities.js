@@ -13,11 +13,15 @@ class World {
         
         //Set up player
         this.player = new Player();
+        
+        this.enemy = new GenericEnemy(400, 500);
+        
+        game.physics.add.collider(this.player, this.enemy);
         //Holds data about world
     }
     
-    createBullet(x, y, facingRight) {
-        var bullet = new Bullet(x, y, facingRight);
+    createBullet(x, y, facingRight, speed) {
+        var bullet = new Bullet(x, y, facingRight, speed);
         this.bulletGroup.add(bullet);
     }
     
@@ -26,5 +30,7 @@ class World {
         this.player.update();
         this.bulletGroup.children.each(function (bullet){
             bullet.update();}, this);
+        
+        game.physics.world.collide(this.player, this.enemy);
     }
 }

@@ -14,7 +14,7 @@ function main() {
         physics: {
             default: 'arcade',
             arcade: {
-                debug: true
+                debug: false
             }
         },
         scene: {
@@ -24,7 +24,7 @@ function main() {
         }
     };
 
-    game = new Phaser.Game(config);    
+    game = new Phaser.Game(config);
 }
 
 function preload() {
@@ -32,17 +32,19 @@ function preload() {
     
     game = this;
     
-    this.load.image('player', 'assets/images/tiny_ship.png');
+    this.load.spritesheet('player', 'assets/images/tiny_ship.png', { frameWidth: 32, frameHeight: 32 });
     this.load.image('laser', 'assets/images/laser.png');
     this.load.image('background', 'assets/images/background.png');
-    this.load.image('enemy', 'assets/images/enemy.png');
-    this.load.audio('music', 'assets/audio/music.mp3');
+    this.load.spritesheet('enemy', 'assets/images/enemy.png', { frameWidth: 32, frameHeight: 32 });
+    //this.load.audio('music', 'assets/audio/music.mp3');
 }
 
 function create() {
     console.log("create");
     
     world = new World(game);
+    
+    
     
     keys = this.input.keyboard.createCursorKeys();
     

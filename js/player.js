@@ -1,41 +1,47 @@
 class Player extends Character {
     constructor() {
-        super(200, 250, 'player');
+        super(200, 250, 'player', 2);
 
         super.setCollideWorldBounds(true);
 
         this.facingRight = true;
         
-        this.maxSpeed = 5;
+        this.maxSpeed = 500;
         
-        this.accelerationRate = 1;
-        this.deccelerationRate = 0.4;
+        this.accelerationRate = 100;
+        this.deccelerationRate = 40;
         
         this.bulletSpeed = 10; //Speed of the projectile.
         
         this.attackSpeed = 0.4; //Attacks per second.
         this.nextShot = 0;
         
+        this.velocity = new Phaser.Math.Vector2(0, 0);
+        
+        this.maxHealth = 3;
+        this.curHealth = this.maxHealth;
+        
+        this.updateTexture();
     }
 
     right() {
         this.facingRight = true;
-        this.velx += this.accelerationRate;
+        this.velocity.x += this.accelerationRate;
         this.setFlipX(false);
     }
     
     left() {
         this.facingRight = false;
-        this.velx += this.accelerationRate;
+        this.velocity.x += this.accelerationRate;
         this.setFlipX(true);
     }
 
     up() {
-        this.vely -= this.accelerationRate;
+        this.velocity.y -= this.accelerationRate;
     }
     
     down() {
-        this.vely += this.accelerationRate;
+        this.velocity.y += this.accelerationRate;
     }
     
     attack() {
@@ -57,28 +63,43 @@ class Player extends Character {
     onDeath() {
         //Game Over
     }
+    
+    recieveDamage(damage) {
+        super.recieveDamage(damage);
+        this.updateTexture();
+    }
+    
+    updateTexture() {
+        var healthiness = this.curHealth / this.curHealth;
+        if (healthiness <= (1/3)) { this.setFrame(0);  }
+        else if (healthiness <= (2/3)) { this.setFrame(1); }
+        else { this.setFrame(2); }
+    }
+    
+    movement() {
+        this.velocity.x = Math.max(this.velocity.x - this.deccelerationRate, 0);
+        this.velocity.x = Math.abs(this.velocity.x);
+        
+        this.velocity.x = Math.min(this.velocity.x, this.maxSpeed);
+        
+        if (this.velocity.y < 0)
+            { this.velocity.y = Math.min(this.velocity.y + this.deccelerationRate, 0) }
+        else if (this.velocity.y > 0)
+            { this.velocity.y = Math.max(this.velocity.y - this.deccelerationRate, 0) }
+        
+        this.velocity.y = Math.max(this.velocity.y, -this.maxSpeed);
+        this.velocity.y = Math.min(this.velocity.y, this.maxSpeed);
+
+        if (this.facingRight) {
+            this.body.setVelocity(this.velocity.x, this.velocity.y);
+        }
+        else {
+            this.body.setVelocity(-this.velocity.x, this.velocity.y);
+        }
+    }
 
     update() {
-        this.velx = Math.max(this.velx - this.deccelerationRate, 0);
-        this.velx = Math.abs(this.velx);
-        
-        this.velx = Math.min(this.velx, this.maxSpeed);
-        
-        if (this.vely < 0)
-            { this.vely = Math.min(this.vely + this.deccelerationRate, 0) }
-        else if (this.vely > 0)
-            { this.vely = Math.max(this.vely - this.deccelerationRate, 0) }
-        
-        this.vely = Math.max(this.vely, -this.maxSpeed);
-        this.vely = Math.min(this.vely, this.maxSpeed);
-
-        if (this.facingRight)
-            { this.body.setVelocity(this.velx * 100, this.vely * 100); }
-        else
-            { this.body.setVelocity(this.velx * -100, this.vely * 100); }
-        
-        //this.y += this.vely;
-        
+        this.movement();        
         this.nextShot = Math.max(this.nextShot - (1/60), 0);
     }
     

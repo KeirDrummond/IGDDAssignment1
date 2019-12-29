@@ -6,6 +6,7 @@ class World {
     constructor(game) {
         
         this.bulletGroup = game.add.group();
+        this.enemyGroup = game.add.group();
         
         //Set up background
         let bg = game.add.sprite(0, 0, 'background');
@@ -14,9 +15,13 @@ class World {
         //Set up player
         this.player = new Player();
         
-        this.enemy = new GenericEnemy(400, 500);
+        //this.enemy = new GenericEnemy(400, 500, null);
+        //this.enemyGroup.add(this.enemy);
         
-        game.physics.add.collider(this.player, this.enemy);
+        this.createSnake(400, 500, GenericEnemy, 5);
+        
+        game.physics.add.collider(this.player, this.enemyGroup);
+        game.physics.add.overlap(this.bulletGroup, this.enemyGroup, this.bulletCollision);
         //Holds data about world
     }
     
@@ -25,12 +30,46 @@ class World {
         this.bulletGroup.add(bullet);
     }
     
+    createSnake(x, y, enemy, length) {
+        
+        var firstEnemy;
+        
+        switch(enemy) {
+            case GenericEnemy: {
+                var enemies = new Array(length);
+                for (var i = 0; i < length; i++) {
+                    if (i == 0){
+                        enemies[i] = new GenericEnemy(x, y, null);
+                    }
+                    else {
+                        enemies[i] = new GenericEnemy(x, y, enemies[i-1]);                        
+                    }
+                    this.enemyGroup.add(enemies[i]);
+                }
+        }
+                break;
+
+        }
+    }
+    
+    bulletCollision(bullet, enemy)
+    {
+        bullet.hit(enemy);
+    }
+    
+    /*this.getEnemyGroup = function() {
+        return this.enemyGroup;
+    }*/
+    
     update() {
         //Update all world entities
         this.player.update();
         this.bulletGroup.children.each(function (bullet){
             bullet.update();}, this);
+        this.enemyGroup.children.each(function (enemy){
+            enemy.update();}, this);
         
         game.physics.world.collide(this.player, this.enemy);
+        game.physics.world.overlap(this.bulletGroup, this.enemyGroup);
     }
 }

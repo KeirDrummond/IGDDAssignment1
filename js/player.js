@@ -21,6 +21,8 @@ class Player extends Character {
         this.maxHealth = 3;
         this.curHealth = this.maxHealth;
         
+        this.invulTime = 3;
+        
         this.updateTexture();
     }
 
@@ -62,15 +64,26 @@ class Player extends Character {
     
     onDeath() {
         //Game Over
+        console.log("Dead");
+        this.disableBody(true, true);
+    }
+    
+    onHurt(other, me) {
+        //using the this keyword returns undefined values.
+        if (me.invulTime <= 0) { 
+            if (other instanceof Enemy) { me.recieveDamage(1); }
+            me.invulTime = 1;
+        }
     }
     
     recieveDamage(damage) {
         super.recieveDamage(damage);
         this.updateTexture();
+        if (this.curHealth <= 0) { this.onDeath(); }
     }
     
     updateTexture() {
-        var healthiness = this.curHealth / this.curHealth;
+        var healthiness = this.curHealth / this.maxHealth;
         if (healthiness <= (1/3)) { this.setFrame(0);  }
         else if (healthiness <= (2/3)) { this.setFrame(1); }
         else { this.setFrame(2); }
@@ -101,6 +114,7 @@ class Player extends Character {
     update() {
         this.movement();        
         this.nextShot = Math.max(this.nextShot - (1/60), 0);
+        if (this.invulTime > 0) { this.invulTime -= 1/60; }
     }
     
 }

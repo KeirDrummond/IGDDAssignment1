@@ -90,7 +90,7 @@ class GenericEnemy extends Enemy {
         super(posx, posy, 'enemy', 2, followTarget);
         this.body.immovable = true;
         
-        this.speed = 100;        
+        this.speed = 300;        
         
         this.setCollideWorldBounds(true, 1, 1);
         

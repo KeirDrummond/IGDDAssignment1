@@ -9,8 +9,8 @@ function main() {
     var config = {
         type: Phaser.AUTO,
         parent: 'my-game',
-        width: 1000,
-        height: 800,
+        width: 1600,
+        height: 1000,
         physics: {
             default: 'arcade',
             arcade: {

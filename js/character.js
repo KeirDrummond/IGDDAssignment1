@@ -15,6 +15,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
     
     onHurt() {
         //To be overridden.
+        console.log("Hi");
     }
     
     recieveDamage(damage) {

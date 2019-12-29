@@ -10,6 +10,7 @@ class World {
         
         //Set up background
         let bg = game.add.sprite(0, 0, 'background');
+        bg.setOrigin(0, 0);
         bg.setDisplaySize(2000, 1600);
         
         //Set up player
@@ -20,8 +21,13 @@ class World {
         
         this.createSnake(400, 500, GenericEnemy, 5);
         
-        game.physics.add.collider(this.player, this.enemyGroup);
+        game.physics.add.overlap(this.enemyGroup, this.player, this.player.onHurt);
         game.physics.add.overlap(this.bulletGroup, this.enemyGroup, this.bulletCollision);
+        
+        game.physics.world.setBounds(0, 0, 2000, 1600);
+        game.cameras.main.setBounds(0, 0, 2000, 1600);
+        game.cameras.main.startFollow(this.player, true, 0.09, 0.09);
+        //game.cameras.main.setZoom(4);
         //Holds data about world
     }
     

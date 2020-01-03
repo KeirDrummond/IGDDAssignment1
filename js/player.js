@@ -6,12 +6,12 @@ class Player extends Character {
 
         this.facingRight = true;
         
-        this.maxSpeed = 500;
+        this.maxSpeed = 300;
         
         this.accelerationRate = 100;
         this.deccelerationRate = 40;
         
-        this.bulletSpeed = 10; //Speed of the projectile.
+        this.bulletSpeed = 15; //Speed of the projectile.
         
         this.attackSpeed = 0.4; //Attacks per second.
         this.nextShot = 0;
@@ -53,10 +53,10 @@ class Player extends Character {
     
     fire() {
         if (this.facingRight) {
-            world.createBullet(this.x, this.y, true, this.bulletSpeed);
+            game.world.createBullet(this.x, this.y, true, this.bulletSpeed);
         }
         else {
-            world.createBullet(this.x, this.y, false, this.bulletSpeed);
+            game.world.createBullet(this.x, this.y, false, this.bulletSpeed);
         }
         
         this.nextShot = this.attackSpeed;
@@ -64,15 +64,15 @@ class Player extends Character {
     
     onDeath() {
         //Game Over
-        console.log("Dead");
+        this.alive = false;
         this.disableBody(true, true);
     }
     
     onHurt(other, me) {
         //using the this keyword returns undefined values.
         if (me.invulTime <= 0) { 
-            if (other instanceof Enemy) { me.recieveDamage(1); }
-            me.invulTime = 1;
+            if (other instanceof Enemy) { if (other.hazard) { me.recieveDamage(1); }}
+            me.invulTime = 2;
         }
     }
     

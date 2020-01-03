@@ -4,5 +4,5 @@ function input(player){
     if (keys.left.isDown) { player.left(); }
     if (keys.right.isDown) { player.right(); }
     
-    if (keys.space.isDown) { player.attack(); }
+    if (keys.space.isDown && player.alive) { player.attack(); }
 }

@@ -2,6 +2,7 @@ var keys;
 var player;
 var game;
 var world;
+var UI;
 
 function main() {
     console.log("main()");
@@ -41,10 +42,10 @@ function preload() {
 
 function create() {
     console.log("create");
-    
-    world = new World(game);
-    
-    
+   
+    game.UI = new UserInterface();
+    game.gpManager = new GameplayManager();
+    game.world = new World(game); 
     
     keys = this.input.keyboard.createCursorKeys();
     
@@ -52,6 +53,7 @@ function create() {
 }
 
 function update() {
-    input(world.player);
-    world.update();
+    input(this.world.player);
+    this.world.update();
+    this.gpManager.update();
 }

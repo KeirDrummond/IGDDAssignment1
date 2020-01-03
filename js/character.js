@@ -8,6 +8,8 @@ class Character extends Phaser.Physics.Arcade.Sprite {
         game.add.existing(this);
         game.physics.world.enable(this);
         
+        this.alive = true;
+        
         if (this.maxHealth == null) { this.maxHealth = 1; }
         
         this.curHealth = this.maxHealth; //Default value of 1.

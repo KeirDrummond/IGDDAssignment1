@@ -1,7 +1,3 @@
-class EntityFactory {
-
-}
-
 class World {
     constructor(game) {
         
@@ -11,23 +7,20 @@ class World {
         //Set up background
         let bg = game.add.sprite(0, 0, 'background');
         bg.setOrigin(0, 0);
-        bg.setDisplaySize(2000, 1600);
+        bg.setDisplaySize(2400, 1600);
         
         //Set up player
         this.player = new Player();
         
-        //this.enemy = new GenericEnemy(400, 500, null);
-        //this.enemyGroup.add(this.enemy);
-        
-        this.createSnake(400, 500, GenericEnemy, 5);
-        
+        //game.gpManager.createRandomSnake(this);
+        //this.createSnake(GenericEnemy, 400, 500, 5);
+            
         game.physics.add.overlap(this.enemyGroup, this.player, this.player.onHurt);
         game.physics.add.overlap(this.bulletGroup, this.enemyGroup, this.bulletCollision);
         
-        game.physics.world.setBounds(0, 0, 2000, 1600);
-        game.cameras.main.setBounds(0, 0, 2000, 1600);
+        game.physics.world.setBounds(0, 0, 2400, 1600);
+        game.cameras.main.setBounds(0, 0, 2400, 1600);
         game.cameras.main.startFollow(this.player, true, 0.09, 0.09);
-        //game.cameras.main.setZoom(4);
         //Holds data about world
     }
     
@@ -36,7 +29,7 @@ class World {
         this.bulletGroup.add(bullet);
     }
     
-    createSnake(x, y, enemy, length) {
+    createSnake(enemy, x, y, length) {
         
         var firstEnemy;
         
@@ -62,10 +55,6 @@ class World {
     {
         bullet.hit(enemy);
     }
-    
-    /*this.getEnemyGroup = function() {
-        return this.enemyGroup;
-    }*/
     
     update() {
         //Update all world entities

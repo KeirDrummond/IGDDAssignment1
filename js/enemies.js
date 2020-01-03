@@ -19,7 +19,8 @@ class Enemy extends Character {
         this.followerVelocity = new Phaser.Math.Vector2(this.body.velocity);
         this.curFolDelay = this.followDelay;
         
-        this.alive = true;
+        this.hazard = false;
+        this.hazardTimer = 2;
     }
     
     onHurt(source) {
@@ -29,16 +30,15 @@ class Enemy extends Character {
     
     onDeath() {
         this.alive = false;
+        game.gpManager.enemyDefeated();
         this.destroy();
     }
     
     update() {        
         this.move();
 
-        if (this.curFolDelay > 0)
-            {
-                this.curFolDelay -= 1/60;
-            }
+        if (this.hazardTimer > 0) { this.hazardTimer -= 1/60; } else { this.hazard = true; }
+        if (this.curFolDelay > 0) { this.curFolDelay -= 1/60; }
     }
     
     move() {
@@ -66,15 +66,10 @@ class Enemy extends Character {
         
         var tar = new Phaser.Geom.Point(this.followTarget.x, this.followTarget.y);
         var distance = Phaser.Math.Distance.Between(this.x, this.y, tar.x, tar.y);
-        if (distance > this.followDistance) {
-            if (this.x > tar.x) { this.body.setVelocity(-this.speed, this.body.velocity.y); }
-            if (this.x < tar.x) { this.body.setVelocity(this.speed, this.body.velocity.y); }
-            if (Math.abs(this.x - tar.x) < 10 && Math.abs(this.x - tar.x) > -10) { this.body.setVelocity(0, this.body.velocity.y); }
-            if (this.y > tar.y) { this.body.setVelocity(this.body.velocity.x, -this.speed); }
-            if (this.y < tar.y) { this.body.setVelocity(this.body.velocity.x, this.speed); }
-            if (Math.abs(this.y - tar.y) < 10 && Math.abs(this.y - tar.y) > -10) { this.body.setVelocity(this.body.velocity.x, 0); }
+        game.physics.moveToObject(this, this.followTarget, this.speed);
+        if (distance < this.followDistance) {
+            this.body.setVelocity(0, 0);
         }
-        else { this.body.setVelocity(0, 0); }
     }
     
     changeInstruction(newInstruction) {
@@ -90,7 +85,8 @@ class GenericEnemy extends Enemy {
         super(posx, posy, 'enemy', 2, followTarget);
         this.body.immovable = true;
         
-        this.speed = 300;        
+        this.speed = 200 * (1 + (game.gpManager.level - 1) * 0.1);
+        this.body.setMaxSpeed(this.speed);
         
         this.setCollideWorldBounds(true, 1, 1);
         
@@ -106,11 +102,14 @@ class GenericEnemy extends Enemy {
         if (!this.firstAction) { this.randomDirection(); this.firstAction = true; }
     }
     
+    onDeath() {
+        game.gpManager.addScore(10);
+        super.onDeath();
+    }
+    
     randomDirection() {
-        var rndx = (Math.random() - 0.5);
-        if (rndx > 0) { rndx = 1; } else { rndx = -1; }
-        var rndy = (Math.random() - 0.5) * 2;
-        this.body.setVelocity(rndx * this.speed, rndy * this.speed);
+        var angle = Phaser.Math.RND.angle();
+        game.physics.velocityFromAngle(angle, this.speed, this.body.velocity);
     }
     
     recieveDamage(damage) {
@@ -127,6 +126,9 @@ class GenericEnemy extends Enemy {
     
     update() {
         super.update();
+        var facingRight = true;
+        if (this.body.velocity.x >= 0) { facingRight = true; } else { facingRight = false; }
+        if (facingRight) { this.setFlipX(true); } else { this.setFlipX(false); }
     }
 
 }

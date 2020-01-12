@@ -1,5 +1,9 @@
-class Enemy extends Character {
-    
+/* Base class for all enemies.
+** The properties of enemies changes dependant on the wave number.
+** Enemies will speed up and appear with a higher maximum health on later waves.
+*/
+
+class Enemy extends Character {    
     constructor(posx, posy, tex, frame) {        
         super(posx, posy, tex, frame);
     }
@@ -37,6 +41,12 @@ class Enemy extends Character {
     }
         
 }
+
+/* The basic enemy class.
+** Appears in a designated position with a velocity and bounces against the bounds of the world.
+** If following another enemy in its set, will choose a random direction to split off into if the enemy being followed is defeated.
+** Is not a hazard immediately after being created.
+*/
 
 class Basic extends Enemy {
     constructor(posx, posy, followTarget) {
@@ -115,6 +125,14 @@ class Basic extends Enemy {
 
 }
 
+
+/* The diver enemy.
+** Appears at a random side of the world and shoots off towards the player's position at the time of launch.
+** Appears in a set but does not move like a snake. Instead all enemies function independently from each other.
+** If a diver hits the edge of the world, turns around and launches again.
+** Is a hazard immediately after being created.
+*/
+
 class Diver extends Enemy {
     constructor() {
         super(0, 0, 'enemy2', 2);
@@ -143,13 +161,13 @@ class Diver extends Enemy {
     
     myInstruction() {
         
-        var bounds = game.world.bounds;
+        var bounds = game.physics.world.bounds;
         
         if (this.leftSide) {
-            if (this.x > bounds.width + 200) { this.charged = false; this.leftSide = false; }
+            if (this.x > bounds.width + 200 || this.y < -200 || this.y > bounds.height + 200) { this.charged = false; this.leftSide = false; }
         }
         else {
-            if (this.x < -200) { this.charged = false; this.leftSide = true; }
+            if (this.x < -200 || this.y < -200 || this.y > bounds.height + 200) { this.charged = false; this.leftSide = true; }
         }
         
         var playerPoint = new Phaser.Geom.Point(game.world.player.x, game.world.player.y);
@@ -179,7 +197,7 @@ class Diver extends Enemy {
     }
     
     onDeath() {
-        game.gpManager.addScore(15);
+        game.gpManager.addScore(20);
         super.onDeath();
     }
     
@@ -194,6 +212,13 @@ class Diver extends Enemy {
         super.update();
     }    
 }
+
+/* The waver enemy.
+** Appears in a designated position and moves left/right in a sine wave pattern.
+** Appears in a set where the followers will follow the enemy in front of them.
+** If the enemy being followed is defeated, changes movement to move independantly.
+** Is not a hazard immediately after being created.
+*/
 
 class Waver extends Enemy {
     constructor(posx, posy, followTarget) {

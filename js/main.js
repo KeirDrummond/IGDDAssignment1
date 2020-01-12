@@ -1,19 +1,14 @@
-var keys;
-var player;
-var game;
-var world;
-var UI;
+//Main function that sets up the game.
 
 function main() {
-    console.log("main()");
-    
     var config = {
         type: Phaser.AUTO,
         parent: 'my-game',
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH
-        },        
+        },
+        //Plays in a 16:9 aspect ratio.
         width: 1280,
         height: 720,
         physics: {

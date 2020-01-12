@@ -1,10 +1,18 @@
+//Reads the input of the player and tells the player class to perform those actions.
+
 function input(player){
+    
+    //Input for when the player uses a computer keyboard.
     if (keys.up.isDown) { player.up(); }
     if (keys.down.isDown) { player.down(); }
     if (keys.left.isDown) { player.left(); }
     if (keys.right.isDown) { player.right(); }
     
     if (keys.space.isDown) { player.attack(); }
+    
+    
+    //Input for when the player attempts to control the player using a cursor.
+    //Either using a mouse on a computer or using touch commands on a mobile device.
     
     var pointer = game.input.activePointer;
     var camera = game.cameras.main;

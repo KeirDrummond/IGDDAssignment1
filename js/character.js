@@ -1,5 +1,6 @@
+//Base class used by the player and enemy classes.
+
 class Character extends Phaser.Physics.Arcade.Sprite {
-    
     constructor(posx, posy, tex, frame){
         super(game, posx, posy, tex, frame);
         
@@ -10,9 +11,9 @@ class Character extends Phaser.Physics.Arcade.Sprite {
         
         this.alive = true;
         
-        if (this.maxHealth == null) { this.maxHealth = 1; }
+        if (this.maxHealth == null) { this.maxHealth = 1; } //Default value of 1 if unset.
         
-        this.curHealth = this.maxHealth; //Default value of 1.
+        this.curHealth = this.maxHealth;
     }
     
     onHurt() {
@@ -20,6 +21,7 @@ class Character extends Phaser.Physics.Arcade.Sprite {
         console.log("Hi");
     }
     
+    //Reduces health when recieving damage.
     recieveDamage(damage) {
         this.curHealth -= damage;
         if (this.curHealth <= 0)

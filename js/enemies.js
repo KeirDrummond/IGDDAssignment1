@@ -1,48 +1,68 @@
 class Enemy extends Character {
     
-    constructor(posx, posy, tex, frame, followTarget, followDelay) {        
+    constructor(posx, posy, tex, frame) {        
         super(posx, posy, tex, frame);
-        this.followTarget = followTarget;
-
-        followDelay = 1;
-                
-        this.followDelay = followDelay;
-        if (this.followDelay > 1)
-            { this.followDelay = 1; }
-        else if (this.followDelay < 0)
-            { this.followDelay = 0; }
-        
-        this.followDistance = 50;
-        
-        this.instructionNo = 0;
-        
-        this.followerVelocity = new Phaser.Math.Vector2(this.body.velocity);
-        this.curFolDelay = this.followDelay;
-        
-        this.hazard = false;
-        this.hazardTimer = 2;
     }
     
     onHurt(source) {
-        console.log("Ouch");
         this.recieveDamage(source.damage);
     }
     
     onDeath() {
         this.alive = false;
+        game.sound.play('enemyDeath');
         game.gpManager.enemyDefeated();
         this.destroy();
     }
     
     update() {        
         this.move();
-
-        if (this.hazardTimer > 0) { this.hazardTimer -= 1/60; } else { this.hazard = true; }
-        if (this.curFolDelay > 0) { this.curFolDelay -= 1/60; }
     }
     
     move() {
+        //To be overwritten
+    }
+    
+    myInstruction() {
+        //To be overwritten
+    }
+    
+    followInstruction() {        
+        var tar = new Phaser.Geom.Point(this.followTarget.x, this.followTarget.y);
+        var distance = Phaser.Math.Distance.Between(this.x, this.y, tar.x, tar.y);
+        game.physics.moveToObject(this, this.followTarget, this.speed);
+        if (distance < this.followDistance) {
+            this.body.setVelocity(0, 0);
+        }
+    }
         
+}
+
+class Basic extends Enemy {
+    constructor(posx, posy, followTarget) {
+        super(posx, posy, 'enemy', 2, followTarget);
+        this.body.immovable = true;
+        
+        this.speed = 200 * (1 + (game.gpManager.level - 1) * 0.2);
+        this.body.setMaxSpeed(this.speed);
+        
+        this.setCollideWorldBounds(true, 1, 1);
+        
+        this.maxHealth = Math.max(Math.floor((game.gpManager.level / 3) + 1), 1);
+        this.curHealth = this.maxHealth;
+        this.updateTexture();
+        
+        this.firstAction = false;
+        
+        this.followTarget = followTarget;
+        
+        this.followDistance = 50;
+        
+        this.hazard = false;
+        this.hazardTimer = 2;
+    }
+    
+    move() {
         if (this.followTarget != null) {
             if (!this.followTarget.alive) { this.followTarget = null; }
         }
@@ -55,50 +75,9 @@ class Enemy extends Character {
             {
                 this.followInstruction();
             }
-
     }
     
     myInstruction() {
-        //To be overwritten
-    }
-    
-    followInstruction() {
-        
-        var tar = new Phaser.Geom.Point(this.followTarget.x, this.followTarget.y);
-        var distance = Phaser.Math.Distance.Between(this.x, this.y, tar.x, tar.y);
-        game.physics.moveToObject(this, this.followTarget, this.speed);
-        if (distance < this.followDistance) {
-            this.body.setVelocity(0, 0);
-        }
-    }
-    
-    changeInstruction(newInstruction) {
-        this.curFolDelay = 1;
-        this.instructionNo = newInstruction;
-    }
-        
-}
-
-class GenericEnemy extends Enemy {
-    
-    constructor(posx, posy, followTarget, followDelay) {
-        super(posx, posy, 'enemy', 2, followTarget);
-        this.body.immovable = true;
-        
-        this.speed = 200 * (1 + (game.gpManager.level - 1) * 0.1);
-        this.body.setMaxSpeed(this.speed);
-        
-        this.setCollideWorldBounds(true, 1, 1);
-        
-        this.maxHealth = 3;
-        this.curHealth = this.maxHealth;
-        this.updateTexture();
-        
-        this.firstAction = false;
-    }
-    
-    myInstruction() {
-        //Something
         if (!this.firstAction) { this.randomDirection(); this.firstAction = true; }
     }
     
@@ -119,16 +98,180 @@ class GenericEnemy extends Enemy {
     
     updateTexture() {
         var healthiness = this.curHealth / this.maxHealth;
-        if (healthiness <= (1/3)) { this.setFrame(0); }
-        else if (healthiness <= (2/3)) { this.setFrame(1); }
+        if (healthiness <= (1/3) || this.curHealth == 1) { this.setFrame(0); }
+        else if (healthiness <= (2/3) || this.curHealth == 2) { this.setFrame(1); }
         else { this.setFrame(2); }
     }
     
     update() {
         super.update();
         var facingRight = true;
+        
+        if (this.hazardTimer > 0) { this.hazardTimer -= 1/60; } else { this.hazard = true; }
+        
         if (this.body.velocity.x >= 0) { facingRight = true; } else { facingRight = false; }
         if (facingRight) { this.setFlipX(true); } else { this.setFlipX(false); }
     }
 
+}
+
+class Diver extends Enemy {
+    constructor() {
+        super(0, 0, 'enemy2', 2);
+        
+        var rnd = Math.random();
+        if (rnd < 0.5) { this.leftSide = true; } else { this.leftSide = false; }
+        
+        this.body.immovable = true;
+        
+        this.speed = 400 * (1 + (game.gpManager.level - 5) * 0.2);
+        this.body.setMaxSpeed(this.speed);
+        
+        this.maxHealth = Math.max(Math.floor(1 + (game.gpManager.level / 6) - 5), 1);
+        
+        this.curHealth = this.maxHealth;
+        this.updateTexture();
+
+        this.charged = false;
+        
+        this.hazard = true;
+    }
+    
+    move() {
+        this.myInstruction();
+    }
+    
+    myInstruction() {
+        
+        var bounds = game.world.bounds;
+        
+        if (this.leftSide) {
+            if (this.x > bounds.width + 200) { this.charged = false; this.leftSide = false; }
+        }
+        else {
+            if (this.x < -200) { this.charged = false; this.leftSide = true; }
+        }
+        
+        var playerPoint = new Phaser.Geom.Point(game.world.player.x, game.world.player.y);
+        
+        if (this.charged == false) {
+            this.charged = true;
+            this.body.setVelocity(0, 0);
+            
+            var posx = 0;
+            if (this.leftSide) { posx = -200; } else { posx = bounds.width + 200; }
+            var posy = Math.random() * bounds.height;
+        
+            this.x = posx;
+            this.y = posy;
+            
+            game.physics.moveTo(this, playerPoint.x, playerPoint.y, this.speed);
+            var angle = Phaser.Math.Angle.Between(playerPoint.x, playerPoint.y, this.x, this.y);
+            this.setRotation(angle);
+            if (this.leftSide) { this.setFlipX(true); this.setAngle(this.angle + 180); }
+            else { this.setFlipX(false); }
+        }
+    }
+    
+    recieveDamage(damage) {
+        super.recieveDamage(damage);
+        this.updateTexture();
+    }
+    
+    onDeath() {
+        game.gpManager.addScore(15);
+        super.onDeath();
+    }
+    
+    updateTexture() {
+        var healthiness = this.curHealth / this.maxHealth;
+        if (healthiness <= (1/3) || this.curHealth == 1) { this.setFrame(0); }
+        else if (healthiness <= (2/3) || this.curHealth == 2) { this.setFrame(1); }
+        else { this.setFrame(2); }
+    }
+    
+    update() {
+        super.update();
+    }    
+}
+
+class Waver extends Enemy {
+    constructor(posx, posy, followTarget) {
+        super(posx, posy, 'enemy3', 2, followTarget);
+        this.body.immovable = true;
+        
+        this.speed = 200 * (1 + (game.gpManager.level - 3) * 0.2);
+        this.body.setMaxSpeed(this.speed);
+        
+        this.maxHealth = Math.max(Math.floor(1 + (game.gpManager.level / 4) - 3), 1);
+        this.curHealth = this.maxHealth;
+        this.updateTexture();
+        
+        var rnd = Math.random();
+        if (rnd < 0.5) { this.leftSide = true; } else { this.leftSide = false; }
+        
+        this.followTarget = followTarget;
+        
+        this.followDistance = 50;
+        
+        this.hazard = false;
+        this.hazardTimer = 2;
+        
+        this.aliveTime = 0;
+        
+        this.facingRight = true;
+        
+        var rnd = Math.random();
+        if (rnd < 0.5) { this.facingRight = true; } else { this.facingRight = false; }
+    }
+    
+    move() {
+        if (this.followTarget != null) {
+            if (!this.followTarget.alive) { this.followTarget = null; }
+        }
+        
+        if (this.followTarget == null)
+            {
+                this.myInstruction();
+            }
+        else
+            {
+                this.followInstruction();
+            }
+    }
+    
+    myInstruction() {
+        var angle = Math.sin(this.aliveTime) * 90;
+        var bounds = game.physics.world.bounds;
+
+        if (this.x > bounds.width && this.facingRight) { this.facingRight = false; } 
+        else { if (this.x < 0 && !this.facingRight) { this.facingRight = true; }}
+        
+        if (!this.facingRight) { angle += 180; }
+        game.physics.velocityFromAngle(angle, this.speed, this.body.velocity);
+        if (this.y < -50 || this.y > bounds.height + 100) { game.physics.moveTo(this, this.x, bounds.height * 0.5, this.speed); }
+    }
+    
+    recieveDamage(damage) {
+        super.recieveDamage(damage);
+        this.updateTexture();
+    }
+    
+    onDeath() {
+        game.gpManager.addScore(15);
+        super.onDeath();
+    }
+    
+    updateTexture() {
+        var healthiness = this.curHealth / this.maxHealth;
+        if (healthiness <= (1/3) || this.curHealth == 1) { this.setFrame(0); }
+        else if (healthiness <= (2/3) || this.curHealth == 2) { this.setFrame(1); }
+        else { this.setFrame(2); }
+    }
+    
+    update() {
+        super.update();
+        this.aliveTime += 1/60;
+        if (this.hazardTimer > 0) { this.hazardTimer -= 1/60; } else { this.hazard = true; }
+    }
 }

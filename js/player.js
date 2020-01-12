@@ -6,7 +6,7 @@ class Player extends Character {
 
         this.facingRight = true;
         
-        this.maxSpeed = 300;
+        this.maxSpeed = 350;
         
         this.accelerationRate = 100;
         this.deccelerationRate = 40;
@@ -22,6 +22,8 @@ class Player extends Character {
         this.curHealth = this.maxHealth;
         
         this.invulTime = 3;
+        
+        this.keyInput = true;
         
         this.updateTexture();
     }
@@ -47,7 +49,7 @@ class Player extends Character {
     }
     
     attack() {
-        if (this.nextShot <= 0)
+        if (this.nextShot <= 0 && this.alive)
             { this.fire(); }
     }
     
@@ -60,12 +62,17 @@ class Player extends Character {
         }
         
         this.nextShot = this.attackSpeed;
+        game.sound.play('laser');
     }
     
     onDeath() {
         //Game Over
         this.alive = false;
+        game.sound.play('playerDeath');
+        game.music.stop();
         this.disableBody(true, true);
+        
+        game.world.gameOver();
     }
     
     onHurt(other, me) {
@@ -78,6 +85,7 @@ class Player extends Character {
     
     recieveDamage(damage) {
         super.recieveDamage(damage);
+        game.sound.play('damage');
         this.updateTexture();
         if (this.curHealth <= 0) { this.onDeath(); }
     }
@@ -112,7 +120,7 @@ class Player extends Character {
     }
 
     update() {
-        this.movement();        
+        if (this.keyInput) { this.movement(); }        
         this.nextShot = Math.max(this.nextShot - (1/60), 0);
         if (this.invulTime > 0) { this.invulTime -= 1/60; }
     }

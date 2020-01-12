@@ -1,3 +1,6 @@
+// The user interface includes the score, wave number, enemies remaining and the fullscreen button.
+// In the event of a game over, a button appears to return to the main menu.
+
 var scoreText;
 var enemiesRemainingText;
 var levelText;
@@ -18,6 +21,7 @@ class UserInterface {
         levelText = game.add.text(10, 60, 'Wave: ?', { font: '48px Arial', fill: '#000000' }).setScrollFactor(0);
         levelText.setDepth(1);
         
+        //Full screen button
         fullscreenBtn = game.add.sprite(camera.width - 10, 10, 'fullscreen').setScrollFactor(0);
         fullscreenBtn.setScale(2);
         fullscreenBtn.setOrigin(1, 0);
@@ -32,18 +36,22 @@ class UserInterface {
     
     }
     
+    //Updates the displayed score
     score(score) {
         scoreText.setText('Score: ' + score);
     }
     
+    //Updates the remaining enemies text
     remainingEnemies(enemies) {
         enemiesRemainingText.setText('Enemies remaining: ' + enemies);
     }
     
+    //Updates the wave text
     level(level) {
         levelText.setText('Wave: ' + level);
     }
     
+    //Shows final score and back to menu button in the event of a game over
     gameOver(score) {        
         var camera = game.cameras.main;
         var newScoreText = game.add.text(camera.width / 2, (camera.height / 2) - 20, 'Final Score: ' + score, { font: '48px Arial', fill: '#000000' }).setScrollFactor(0);
